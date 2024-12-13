@@ -12,10 +12,7 @@ export function solvePart1(input: string): number {
 
   const validUpdates = updates.filter((update) => isValidUpdate(update, rules));
 
-  const middlePagesSumOfValidUpdates = validUpdates
-    // Get the middle pages of the valid updates
-    .map((update) => update[update.length / 2 - 0.5])
-    .reduce((sum, pageNumber) => sum + pageNumber, 0);
+  const middlePagesSumOfValidUpdates = getMiddleSumOfUpdates(validUpdates);
 
   return middlePagesSumOfValidUpdates;
 }
@@ -37,6 +34,15 @@ const isValidUpdate = (update: Update, rules: Rule[]): boolean => {
   });
 };
 
+const getMiddleSumOfUpdates = (updates: Update[]): number => {
+  return (
+    updates
+      // Get the middle pages of the valid updates
+      .map((update) => update[update.length / 2 - 0.5])
+      .reduce((sum, pageNumber) => sum + pageNumber, 0)
+  );
+};
+
 /**
  * -- PART 2 --
  */
@@ -44,11 +50,41 @@ const isValidUpdate = (update: Update, rules: Rule[]): boolean => {
 export function solvePart2(input: string): number {
   const { rules, updates } = parseInput(input);
 
-  const invalidUpdates = updates.filter((update) => !isValidUpdate(update, rules));
+  // Get all updates which are invalid
+  const invalidUpdates = updates.filter(
+    (update) => !isValidUpdate(update, rules)
+  );
 
-  
+  /**
+   * Fixes an invalid update by reordering the pages in the update
+   * so that the rules are not violated anymore.
+   * @param update The invalid update
+   * @returns A fixed version of the update
+   */
+  const fixUpdate = (update: Update, rules: Rule[]): Update => {
+    // Clone the update to avoid mutating the original, then 
+    // sort the update such that none of the rules are violated
+    return [...update].sort((a, b) => {
+      for (const rule of rules) {
+        if (a === rule.smaller && b === rule.greater) {
+          return -1;
+        }
+        if (a === rule.greater && b === rule.smaller) {
+          return 1;
+        }
+      }
 
-  return -1;
+      return 0;
+    });
+  };
+
+  // Fix all invalid updates
+  const fixedUpdates = invalidUpdates.map((update) => fixUpdate(update, rules));
+
+  // Get the sum of the middle pages of the fixed updates
+  const middlePagesSumOfFixedUpdates = getMiddleSumOfUpdates(fixedUpdates);
+
+  return middlePagesSumOfFixedUpdates;
 }
 
 /**

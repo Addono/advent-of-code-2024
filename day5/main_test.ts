@@ -37,8 +37,8 @@ describe("solvePart1", () => {
   });
 });
 
-// describe("solvePart2", () => {
-//   it("should solve the given example", () => {
-//     assertEquals(solvePart2(testInput), 9);
-//   });
-// });
+describe("solvePart2", () => {
+  it("should solve the given example", () => {
+    assertEquals(solvePart2(testInput), 123);
+  });
+});
